@@ -44,39 +44,6 @@ st.markdown("""
         font-weight: 600 !important;
     }
 
-    /* Alert Card Styling */
-    .alert-card {
-        padding: 16px;
-        border-radius: 8px;
-        margin-bottom: 12px;
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    }
-    .alert-low {
-        background-color: #064e3b;
-        border-left: 5px solid #10b981;
-        color: #ecfdf5;
-    }
-    .alert-moderate {
-        background-color: #065f46;
-        border-left: 5px solid #34d399;
-        color: #ecfdf5;
-    }
-    .alert-high {
-        background-color: #78350f;
-        border-left: 5px solid #f59e0b;
-        color: #fffbeb;
-    }
-    .alert-very-high {
-        background-color: #7c2d12;
-        border-left: 5px solid #f97316;
-        color: #fff7ed;
-    }
-    .alert-extreme {
-        background-color: #7f1d1d;
-        border-left: 5px solid #ef4444;
-        color: #fef2f2;
-    }
-
     /* Terminal Log Box */
     .log-box {
         background-color: #020617;
@@ -663,16 +630,27 @@ with bottom_right:
     st.progress(score_val / 100.0)
     st.caption(f"Drainage Capacity Utilization: **{twin_data['drain_utilization']}%**")
     
-    # MUNICIPAL ALERT CARD
-    st.markdown(f"""
-    <div class="alert-card {alert_data['class_name']}">
-        <h4 style="margin: 0 0 6px 0;">{alert_data['header']}</h4>
-        <p style="margin: 0; font-size: 0.9rem;">{alert_data['body']}</p>
-    </div>
-    """, unsafe_allow_html=True)
+    st.markdown("---")
     
-    # DECISION PROTOCOL DIRECTIVES
-    with st.expander("🛠️ View Automated Action Protocols & Active SWMM RAG Context", expanded=True):
+    # --- MUNICIPAL ALERT CARD (HIGH-VISIBILITY NATIVE STREAMLIT RENDER) ---
+    st.subheader("🚨 Active Municipal Alert")
+    if alert_data['class_name'] in ['alert-extreme', 'alert-very-high']:
+        st.error(f"**{alert_data['header']}**\n\n{alert_data['body']}")
+    elif alert_data['class_name'] == 'alert-high':
+        st.warning(f"**{alert_data['header']}**\n\n{alert_data['body']}")
+    else:
+        st.info(f"**{alert_data['header']}**\n\n{alert_data['body']}")
+
+    st.markdown("<br>", unsafe_allow_html=True)
+
+    # --- DECISION PROTOCOL DIRECTIVES & ACTIVE SWMM RAG CONTEXT ---
+    st.subheader("🛠️ Automated Action Protocols & Active SWMM RAG")
+    
+    with st.container():
+        st.markdown(f"**Matched Knowledge Rule:** `{decision_data['matched_rag']['doc_id']}` — *{decision_data['matched_rag']['title']}*")
+        st.info(f"📜 **Vector RAG Snippet:** \"{decision_data['matched_rag']['text']}\"")
+        
+        st.markdown("**Dispatched Operational Directives:**")
         for act in decision_data["actions"]:
             st.markdown(f"- {act}")
 
